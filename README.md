@@ -1,53 +1,48 @@
-Práctica de SQL: Consultas Básicas y Alias de Columnas
+# TechStore — Práctica de SQL: Consultas Básicas y Alias de Columnas
 
-1. Título y Objetivo
+## 1. Título y Objetivo
+- **Título:** Práctica de SQL: Consultas Básicas y Alias de Columnas.
+- **Objetivo:** Aplicar sentencias `SELECT` y definir alias de columna (`AS`) para consultar, proyectar y renombrar atributos de la base de datos de práctica, asegurando una salida clara y estandarizada para equipos técnicos y de negocio.
 
-Título: Práctica de SQL: Consultas básicas y alias de columnas.
-Objetivo: Aplicar sentencias SELECT y definir alias de columna (AS) para consultar, proyectar y renombrar atributos de las tablas de la base de datos de práctica, asegurando una salida clara, estructurada y estandarizada.
+---
 
-2. Tabla(s) Consultada(s)
+## 2. Tabla Consultada (`sales`)
+La tabla **`sales`** almacena el registro de transacciones comerciales de TechStore. Sus principales campos son:
 
-Tabla: inventario (o productos)
-Campos clave trabajados:
-id_producto: Identificador único de cada artículo (Primary Key).
-nombre_producto: Nombre descriptivo del producto.
-precio: Valor monetario unitario del producto.
-categoria: Categoría funcional a la que pertenece el producto.
-stock_actual: Cantidad de unidades disponibles en almacén.
+| Campo | Tipo de Dato | Descripción |
+| :--- | :--- | :--- |
+| `order_id` | INT | Identificador único de la orden (*Primary Key*). |
+| `order_date` | DATE | Fecha en que se realizó la venta. |
+| `customer_id` | INT | Identificador del cliente. |
+| `product_id` | INT | Identificador único del producto. |
+| `product_name` | VARCHAR | Nombre comercial del producto. |
+| `quantity` | INT | Cantidad de unidades vendidas. |
+| `total_amount` | DECIMAL | Monto total de la transacción. |
 
-3. Preguntas Teórico-Prácticas Obligatorias
+---
 
-A. Razones técnicas para evitar SELECT * en entornos de producción
-Rendimiento e I/O (Léctura de disco y transferencia de red): Al ejecutar SELECT *, la base de datos lee e impacta la red transmitiendo el 100% de los datos de todas las columna
+## 3. Preguntas Teóricas Obligatorias
 
-Mantenibilidad y Fragilidad del Código: Si la estructura de la tabla cambia en la base de datos (por ejemplo, se añade, elimina o reordena una columna), las aplicaciones que dependan del orden estático de un SELECT * pueden sufrir fallos de mapeo de datos o romper la compatibilidad en sus interfaces/APIs.
+### ¿Por qué es mala práctica usar `SELECT *` en producción?
+Utilizar `SELECT *` en entornos de producción se considera una mala práctica por las siguientes razones técnicas:
 
-Optimización de Índices (Covering Indexes): El motor de la base de datos no puede aprovechar al máximo los índices si se le exige devolver todas las columnas, forzando búsquedas adicionales en el almacenamiento principal (table scan o lookup) en lugar de responder directamente desde un índice secundario.
+1. **Rendimiento e Impacto en I/O:** Recupera todas las columnas de la tabla, incluyendo campos grandes o innecesarios. Esto incrementa la carga en la red, el consumo de memoria y la lectoescritura en disco (I/O).
+2. **Mantenibilidad y Acoplamiento:** Si el esquema de la tabla cambia (por ejemplo, si se agregan, renombran o eliminan columnas), las aplicaciones backend o reportes dependientes pueden fallar al recibir una estructura de datos inesperada.
+3. **Incapacidad de Aprovechar Índices (*Covering Indexes*):** Impide que el motor de la base de datos resuelva la consulta leyendo únicamente un índice secundario, forzando un acceso completo a la tabla (*Table Scan* / *Clustered Index Scan*).
 
-4. Consignas y Consultas Resueltas
+---
 
-Consigna 1: Selección básica de columnas
+### ¿Por qué son importantes los alias para un stakeholder no técnico?
+Los alias (`AS`) permiten traducir identificadores técnicos o nombres de columnas en inglés hacia terminología clara y relevante para el negocio.
 
-Descripción: Listar el identificador, nombre del producto y su precio unitario.
+**Ejemplo concreto:**
+Un usuario del área de finanzas que consulta un reporte o dashboard prefiere ver etiquetas comprensibles en lugar de nombres de base de datos:
 
-Consulta SQL:
+```sql
+-- Sin alias (Técnico / BD):
+SELECT total_amount FROM sales; 
+-- Resultado en la interfaz: total_amount
 
-SELECT 
-    id_producto, 
-    nombre_producto, 
-    precio 
-FROM inventario;
-
-Consigna 2: Proyección y Renombrado con Alias (AS)
-
-Descripción: Proyectar el catálogo con nombres estandarizados y amigables para reportes.
-
-Consulta SQL:
-
-SELECT 
-    id_producto AS id,
-    nombre_producto AS producto,
-    precio AS precio_unitario,
-    stock_actual AS stock
-FROM inventario;
-
+-- Con alias (Comprensible para Finanzas):
+SELECT total_amount AS monto_total FROM sales;
+-- Resultado en la interfaz: monto_total
